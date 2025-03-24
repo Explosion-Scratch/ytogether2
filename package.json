@@ -1,0 +1,24 @@
+{
+  "name": "ytogether",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.0.15",
+    "dompurify": "^3.2.4",
+    "marked": "^15.0.7",
+    "normalize.css": "^8.0.1",
+    "peerjs": "^1.5.4",
+    "uuid": "^11.1.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.2.0"
+  }
+}
