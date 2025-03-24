@@ -28,20 +28,18 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        working-directory: ./ytogether2
         run: bun install
 
       - name: Build
-        working-directory: ./ytogether2
         run: bun run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: "./ytogether2/dist"
+          path: "./dist"
 
   deploy:
     environment:
