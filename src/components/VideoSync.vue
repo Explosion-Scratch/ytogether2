@@ -2,7 +2,7 @@
     <div class="relative">
         <div
             v-if="!currentVideoId"
-            class="aspect-video bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-300 rounded"
+            class="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 rounded"
         >
             <div class="text-center p-4">
                 <div class="mb-2 text-2xl">📺</div>
@@ -30,11 +30,11 @@
                 @paste="handlePaste"
                 @keyup.enter="handleLoadVideoRequest"
                 placeholder="Enter YouTube video ID or URL"
-                class="w-full p-2 border border-gray-300 rounded-t transition-all duration-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:shadow-md"
+                class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded transition-all duration-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:shadow-md dark:bg-gray-800 dark:text-white"
             />
             <button
                 @click="handleLoadVideoRequest"
-                class="w-full px-4 py-2 bg-teal-500 text-white rounded cursor-pointer hover:bg-teal-600 focus:outline-none transition-all duration-300"
+                class="w-full px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded cursor-pointer focus:outline-none transition-all duration-300 dark:bg-teal-600 dark:hover:bg-teal-700"
             >
                 Watch
             </button>
@@ -45,7 +45,7 @@
         </p>
 
         <div v-if="currentVideoId" class="mt-4">
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
                 Now playing:
                 <span class="font-semibold">{{
                     currentVideoTitle || "YouTube Video"

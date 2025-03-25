@@ -1,21 +1,17 @@
 <template>
     <div
-        class="h-screen bg-white text-gray-800 font-mono flex flex-col overflow-hidden"
+        class="h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-mono flex flex-col overflow-auto"
     >
-        <header class="bg-teal-600 text-white p-3 shadow-md">
-            <div class="container mx-auto">
-                <h1 class="text-lg font-bold my-0">YTogether</h1>
+        <header class="bg-teal-600 dark:bg-teal-800 text-white p-2 shadow-md">
+            <div class="px-4 mx-auto flex items-center justify-between">
+                <h1 class="text-lg p-0 font-bold !my-0">YTogether</h1>
                 <p class="text-xs text-teal-100">Watch YouTube videos</p>
             </div>
         </header>
 
-        <main class="flex-1 flex overflow-hidden">
+        <main class="flex-1 flex">
             <Room />
         </main>
-
-        <footer class="bg-gray-100 p-3 text-center text-gray-500 text-sm">
-            <p>Share the URL with friends to watch together</p>
-        </footer>
     </div>
 </template>
 

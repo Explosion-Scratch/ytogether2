@@ -1,33 +1,48 @@
 <template>
-<div
-    class="flex flex-col h-full border border-gray-300 rounded overflow-hidden transition-all duration-300 hover:shadow-md"
->
+    <div
+        class="flex flex-col h-full border border-gray-300 dark:border-gray-700 rounded overflow-auto transition-all duration-300 hover:shadow-md dark:hover:shadow-lg"
+    >
         <div
-            class="bg-gray-100 p-2 border-b border-gray-300 text-sm flex justify-between items-center"
+            class="grid grid-cols-2 gap-4 bg-gray-100 dark:bg-gray-800 p-3 border-b border-gray-300 dark:border-gray-700 text-sm"
         >
-            <span>Room ID: {{ roomId }}</span>
-            <span v-if="userName">Your name: {{ userName }}</span>
+            <div class="flex flex-col">
+                <span class="font-semibold">Room ID:</span>
+                <span class="text-nowrap overflow-hidden text-ellipsis">{{
+                    roomId
+                }}</span>
+            </div>
+            <div class="flex flex-col" v-if="userName">
+                <span class="font-semibold">Your name:</span>
+                <span class="text-nowrap overflow-hidden text-ellipsis">{{
+                    userName
+                }}</span>
+            </div>
         </div>
         <div ref="chatContainer" class="flex-1 p-4 overflow-y-auto">
             <div v-for="(msg, index) in messages" :key="index" class="mb-3">
-                <div class="text-xs text-gray-500 mb-1">{{ msg.sender }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    {{ msg.sender }}
+                </div>
                 <div
-                    class="bg-gray-50 p-2 rounded"
+                    class="bg-gray-50 dark:bg-gray-700 p-2 rounded"
                     v-html="formatMessage(msg.content)"
                 ></div>
             </div>
         </div>
-        <div v-if="!userName" class="p-3 bg-teal-50 border-t border-teal-200">
+        <div
+            v-if="!userName"
+            class="p-3 bg-teal-50 dark:bg-teal-900 border-t border-teal-200 dark:border-teal-700"
+        >
             <div class="text-sm mb-2">Enter your name to join the chat:</div>
             <div class="flex">
                 <input
                     v-model="userNameInput"
                     placeholder="Your name"
-                    class="flex-1 p-2 border border-gray-300 rounded-l transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    class="flex-1 p-2 border border-gray-300 dark:border-gray-700 rounded-l transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-800 dark:text-white"
                 />
                 <button
                     @click="setUserName"
-                    class="px-4 py-2 bg-teal-500 text-white rounded-r hover:bg-teal-600 focus:outline-none transition-all duration-300"
+                    class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-r focus:outline-none transition-all duration-300 dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                     Join
                 </button>
@@ -38,7 +53,7 @@
             v-model="message"
             @keyup.enter="sendMessage"
             placeholder="Type a message..."
-            class="p-2 border-t border-gray-300 w-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:shadow-inner"
+            class="p-2 border-t border-gray-300 dark:border-gray-700 w-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:shadow-inner dark:bg-gray-800 dark:text-white"
         />
     </div>
 </template>

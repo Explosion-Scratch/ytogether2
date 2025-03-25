@@ -1,8 +1,8 @@
 <template>
-    <div class="flex flex-col flex-1 overflow-hidden max-w-6xl mx-auto">
+    <div class="flex flex-col flex-1 max-w-6xl mx-auto">
         <div
             v-if="isNewRoom"
-            class="mx-3 my-4 p-3 bg-teal-50 border border-teal-200 rounded-md text-teal-700 text-sm"
+            class="mx-3 my-4 p-3 bg-teal-50 dark:bg-teal-900 border border-teal-200 dark:border-teal-700 rounded-md text-teal-700 dark:text-teal-300 text-sm"
         >
             <p>
                 New room created with secure UUID! URL copied to clipboard for
@@ -10,7 +10,7 @@
             </p>
             <button
                 @click="copyUrlToClipboard"
-                class="mt-1 text-xs px-2 py-1 bg-teal-100 hover:bg-teal-200 rounded transition-colors"
+                class="mt-1 text-xs px-2 py-1 bg-teal-100 dark:bg-teal-800 hover:bg-teal-200 dark:hover:bg-teal-700 rounded transition-colors"
             >
                 Copy URL again
             </button>
