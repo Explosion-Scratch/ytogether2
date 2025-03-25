@@ -1,21 +1,20 @@
 <template>
-    <div class="flex flex-1 flex-col md:flex-row p-4 gap-4">
-        <!-- <div
-            v-if="isNewRoom"
-            class="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-md text-teal-700 text-sm"
+    <div
+        v-if="isNewRoom"
+        class="mx-3 my-4 p-3 bg-teal-50 border border-teal-200 rounded-md text-teal-700 text-sm"
+    >
+        <p>
+            New room created with secure UUID! URL copied to clipboard for
+            sharing.
+        </p>
+        <button
+            @click="copyUrlToClipboard"
+            class="mt-1 text-xs px-2 py-1 bg-teal-100 hover:bg-teal-200 rounded transition-colors"
         >
-            <p>
-                New room created with secure UUID! URL copied to clipboard for
-                sharing.
-            </p>
-            <button
-                @click="copyUrlToClipboard"
-                class="mt-1 text-xs px-2 py-1 bg-teal-100 hover:bg-teal-200 rounded transition-colors"
-            >
-                Copy URL again
-            </button>
-        </div> -->
-
+            Copy URL again
+        </button>
+    </div>
+    <div class="flex flex-1 flex-col md:flex-row p-4 gap-4">
         <div class="flex-1">
             <VideoSync :roomId="roomId" />
         </div>
@@ -37,6 +36,18 @@ const isNewRoom = ref(false);
 // Provide roomId to child components
 provide("roomId", roomId);
 
+async function createNewRoom() {
+    const newRoomId = await peerService.createRoom();
+    roomId.value = newRoomId;
+    updateRoomIdInUrl(newRoomId);
+    isNewRoom.value = true;
+
+    // Copy the URL to clipboard for easy sharing
+    copyUrlToClipboard();
+    console.log("Created new room with ID:", newRoomId);
+    return newRoomId;
+}
+
 onMounted(async () => {
     const urlRoomId = new URLSearchParams(window.location.search).get("roomId");
 
@@ -46,18 +57,17 @@ onMounted(async () => {
             roomId.value = urlRoomId;
             console.log("Joining room:", urlRoomId);
 
-            await peerService.joinRoom(urlRoomId);
-            console.log("Joined room:", urlRoomId);
+            try {
+                await peerService.joinRoom(urlRoomId);
+                console.log("Joined room:", urlRoomId);
+            } catch (joinError) {
+                console.error("Failed to join room:", joinError);
+                console.log("Creating new room instead");
+                await createNewRoom();
+            }
         } else {
             // We're creating a new room
-            const newRoomId = await peerService.createRoom();
-            roomId.value = newRoomId;
-            updateRoomIdInUrl(newRoomId);
-            isNewRoom.value = true;
-
-            // Copy the URL to clipboard for easy sharing
-            copyUrlToClipboard();
-            console.log("Created new room with ID:", newRoomId);
+            await createNewRoom();
         }
     } catch (error) {
         console.error("Failed to initialize room:", error);

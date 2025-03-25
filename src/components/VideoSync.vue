@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, inject, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import peerService from "../utils/peerService";
 
 const props = defineProps({
@@ -73,9 +73,10 @@ const currentVideoTitle = ref("");
 const isAPIReady = ref(false);
 const player = ref(null);
 const isPlayerReady = ref(false);
-const lastSyncTime = ref(0);
 const isSyncing = ref(false);
-const autoSyncInterval = ref(null);
+const lastSeekTime = ref(0);
+const lastCheckedTime = ref(0);
+const seekCheckInterval = ref(null);
 
 // Setup YouTube API
 onMounted(() => {
@@ -110,15 +111,16 @@ onMounted(() => {
 
     loadYouTubeAPI();
 });
-onBeforeUnmount(() => {
-    // Clear sync interval
-    if (autoSyncInterval.value) {
-        clearInterval(autoSyncInterval.value);
-    }
 
+onBeforeUnmount(() => {
     // Destroy player if it exists
     if (player.value) {
         player.value.destroy();
+    }
+
+    // Clear seek check interval
+    if (seekCheckInterval.value) {
+        clearInterval(seekCheckInterval.value);
     }
 });
 
@@ -132,57 +134,97 @@ function loadYouTubeAPI() {
     }
 }
 
-function handlePeerMessage(data, peerId) {
-    if (data.type === "sync" && player.value && isPlayerReady.value) {
-        syncPlayer(data);
-    } else if (data.type === "video_info") {
-        console.log("Received video info:", data.videoId);
-        loadVideo(data.videoId);
-
-        if (isAPIReady.value) {
-            // After player is ready, we'll sync to the provided time
-            const syncVideoState = () => {
-                if (player.value && isPlayerReady.value) {
-                    // Apply playback rate first
-                    player.value.setPlaybackRate(data.playbackRate);
-
-                    // Then seek to position
-                    seekTo(data.currentTime);
-
-                    // Finally set play/pause state
-                    setPaused(data.paused);
+function handlePeerMessage(data) {
+    console.log("Got messsage: ", data.type, data);
+    switch (data.type) {
+        case "pause":
+            if (!isSyncing.value) {
+                isSyncing.value = true;
+                player.value.pauseVideo();
+                setTimeout(() => {
+                    isSyncing.value = false;
+                }, 500);
+            }
+            break;
+        case "play":
+            if (!isSyncing.value) {
+                isSyncing.value = true;
+                player.value.playVideo();
+                setTimeout(() => {
+                    isSyncing.value = false;
+                }, 500);
+            }
+            break;
+        case "seek":
+            if (!isSyncing.value) {
+                isSyncing.value = true;
+                if (Math.abs(player.value.getCurrentTime() - data.time) > 0.5) {
+                    player.value.seekTo(data.time, true);
                 }
-            };
+                player.value.playVideo();
+                lastSeekTime.value = data.time;
+                setTimeout(() => {
+                    isSyncing.value = false;
+                }, 500);
+            }
+            break;
+        case "speedChange":
+            if (!isSyncing.value) {
+                isSyncing.value = true;
+                player.value.setPlaybackRate(data.rate);
+                setTimeout(() => {
+                    isSyncing.value = false;
+                }, 500);
+            }
+            break;
+        case "video_info":
+            console.log("Received video info:", data.videoId);
+            loadVideo(data.videoId);
 
-            // Try to sync multiple times to ensure it works
-            setTimeout(syncVideoState, 1000);
-            setTimeout(syncVideoState, 2000);
-        }
-    } else if (data.type === "request_video_info") {
-        // Someone is requesting our current video info
-        if (currentVideoId.value && player.value && isPlayerReady.value) {
-            console.log("Sending requested video info to peers");
-            peerService.send({
-                type: "video_info",
-                videoId: currentVideoId.value,
-                currentTime: player.value.getCurrentTime(),
-                playbackRate: player.value.getPlaybackRate(),
-                paused:
-                    player.value.getPlayerState() !== YT.PlayerState.PLAYING,
-            });
-        }
-    } else if (data.type === "request_sync") {
-        // Someone is requesting a sync
-        if (player.value && isPlayerReady.value) {
-            console.log("Sending requested sync info to peers");
-            peerService.send({
-                type: "sync",
-                currentTime: player.value.getCurrentTime(),
-                playbackRate: player.value.getPlaybackRate(),
-                paused:
-                    player.value.getPlayerState() !== YT.PlayerState.PLAYING,
-            });
-        }
+            if (isAPIReady.value) {
+                // After player is ready, we'll sync to the provided time
+                const syncVideoState = () => {
+                    if (player.value && isPlayerReady.value) {
+                        // Apply playback rate
+                        peerService.send({
+                            type: "speedChange",
+                            rate: data.playbackRate,
+                        });
+
+                        // Seek to position
+                        peerService.send({
+                            type: "seek",
+                            time: data.currentTime,
+                        });
+
+                        // Set play/pause state
+                        if (data.paused) {
+                            peerService.send({ type: "pause" });
+                        } else {
+                            peerService.send({ type: "play" });
+                        }
+                    }
+                };
+
+                // Try to sync multiple times to ensure it works
+                setTimeout(syncVideoState, 1000);
+            }
+            break;
+        case "request_video_info":
+            // Someone is requesting our current video info
+            if (currentVideoId.value && player.value && isPlayerReady.value) {
+                console.log("Sending requested video info to peers");
+                peerService.send({
+                    type: "video_info",
+                    videoId: currentVideoId.value,
+                    currentTime: player.value.getCurrentTime(),
+                    playbackRate: player.value.getPlaybackRate(),
+                    paused:
+                        player.value.getPlayerState() !==
+                        YT.PlayerState.PLAYING,
+                });
+            }
+            break;
     }
 }
 
@@ -204,12 +246,13 @@ function createPlayer(videoId) {
         events: {
             onReady: onPlayerReady,
             onStateChange: onPlayerStateChange,
+            onPlaybackRateChange: onPlaybackRateChange,
             onError: onPlayerError,
         },
     });
 }
 
-function onPlayerReady(event) {
+function onPlayerReady() {
     isPlayerReady.value = true;
     // Get video title if available
     if (player.value && player.value.getVideoData) {
@@ -221,90 +264,71 @@ function onPlayerReady(event) {
         requestSync();
     }
 
-    // Setup more frequent automatic sync
-    if (autoSyncInterval.value) {
-        clearInterval(autoSyncInterval.value);
+    // Start checking for seek events
+    setupSeekDetection();
+}
+
+function setupSeekDetection() {
+    // Clear any existing interval
+    if (seekCheckInterval.value) {
+        clearInterval(seekCheckInterval.value);
     }
 
-    autoSyncInterval.value = setInterval(() => {
-        if (isPlayerReady.value && player.value) {
-            // Only broadcast if playing to avoid spamming when paused
-            if (player.value.getPlayerState() === YT.PlayerState.PLAYING) {
-                broadcastPlayerState();
-            }
+    // Set up interval to check for seeks
+    seekCheckInterval.value = setInterval(() => {
+        if (!player.value || !isPlayerReady.value || isSyncing.value) return;
+
+        const currentTime = player.value.getCurrentTime();
+        if (Math.abs(currentTime - lastCheckedTime.value) > 1.5) {
+            handleSeek();
         }
-    }, 500);
+        lastCheckedTime.value = currentTime;
+    }, 1000);
 }
 
 function requestSync() {
-    peerService.send({ type: "request_sync" });
-}
-
-function syncPlayer(data) {
-    if (!player.value || !isPlayerReady.value || isSyncing.value) return;
-
-    isSyncing.value = true;
-
-    // Get current state
-    const currentTime = player.value.getCurrentTime();
-    const timeDiff = Math.abs(currentTime - data.currentTime);
-    const isCurrentlyPaused =
-        player.value.getPlayerState() !== YT.PlayerState.PLAYING;
-
-    // Order of operations is important for smooth syncing
-
-    // 1. Match playback rate first
-    player.value.setPlaybackRate(data.playbackRate);
-
-    // 2. Sync time if difference is significant
-    // More aggressive syncing with smaller threshold
-    if (timeDiff > 1) {
-        seekTo(data.currentTime);
-    }
-
-    // 3. Sync play/pause state last
-    if (data.paused !== isCurrentlyPaused) {
-        setPaused(data.paused);
-    }
-
-    // Release sync lock after a delay
-    setTimeout(() => {
-        isSyncing.value = false;
-    }, 800);
+    peerService.send({ type: "request_video_info" });
 }
 
 function onPlayerStateChange(event) {
     // Don't broadcast changes if we're currently syncing
     if (isSyncing.value) return;
 
-    // Rate limit broadcasts (but make sure pause/play events always get through)
-    const now = Date.now();
-    const isImportantStateChange =
-        event.data === YT.PlayerState.PLAYING ||
-        event.data === YT.PlayerState.PAUSED;
-
-    if (isImportantStateChange || now - lastSyncTime.value > 1000) {
-        lastSyncTime.value = now;
-        broadcastPlayerState();
+    if (event.data === YT.PlayerState.PLAYING) {
+        peerService.send({ type: "play" });
+        handleSeek();
+        lastSeekTime.value = Date.now();
+        lastCheckedTime.value = player.value.getCurrentTime();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        peerService.send({ type: "pause" });
+        handleSeek();
+    } else if (event.data === YT.PlayerState.BUFFERING) {
+        // When buffering ends, it will enter PLAYING state and send a play event
     }
 }
 
-function onPlayerError(event) {
+function onPlaybackRateChange(event) {
+    if (isSyncing.value || !player.value || !isPlayerReady.value) return;
+
+    peerService.send({
+        type: "speedChange",
+        rate: player.value.getPlaybackRate(),
+    });
+}
+
+function onPlayerError() {
     errorMessage.value = "Error loading video. Please try another URL.";
     currentVideoId.value = "";
 }
 
-function broadcastPlayerState() {
-    if (!player.value || !isPlayerReady.value) return;
+// Function to handle manual seeking
+function handleSeek() {
+    if (isSyncing.value || !player.value || !isPlayerReady.value) return;
 
-    const syncData = {
-        type: "sync",
-        currentTime: player.value.getCurrentTime(),
-        playbackRate: player.value.getPlaybackRate(),
-        paused: player.value.getPlayerState() !== YT.PlayerState.PLAYING,
-    };
-
-    peerService.send(syncData);
+    peerService.send({
+        type: "seek",
+        time: player.value.getCurrentTime(),
+    });
 }
 
 function handleLoadVideoRequest() {
@@ -339,21 +363,6 @@ function loadVideo(videoId) {
         console.log("Creating player");
         setTimeout(() => createPlayer(videoId), 10);
     }
-}
-
-function setPaused(paused) {
-    if (!player.value || !isPlayerReady.value) return;
-
-    if (paused) {
-        player.value.pauseVideo();
-    } else {
-        player.value.playVideo();
-    }
-}
-
-function seekTo(time) {
-    if (!player.value || !isPlayerReady.value) return;
-    player.value.seekTo(time, true);
 }
 
 function extractVideoId(url) {
