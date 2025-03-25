@@ -34,15 +34,15 @@
             class="p-3 bg-teal-50 dark:bg-teal-900 border-t border-teal-200 dark:border-teal-700"
         >
             <div class="text-sm mb-2">Enter your name to join the chat:</div>
-            <div class="flex">
+            <div class="flex flex-wrap">
                 <input
                     v-model="userNameInput"
                     placeholder="Your name"
-                    class="flex-1 p-2 border border-gray-300 dark:border-gray-700 rounded-l transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-800 dark:text-white"
+                    class="mt-2 flex-1 p-2 border border-gray-300 dark:border-gray-700 rounded-l transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-800 dark:text-white"
                 />
                 <button
                     @click="setUserName"
-                    class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-r focus:outline-none transition-all duration-300 dark:bg-teal-600 dark:hover:bg-teal-700"
+                    class="mt-2 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-r focus:outline-none transition-all duration-300 dark:bg-teal-600 dark:hover:bg-teal-700"
                 >
                     Join
                 </button>

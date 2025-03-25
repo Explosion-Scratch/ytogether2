@@ -15,11 +15,11 @@
                 Copy URL again
             </button>
         </div>
-        <div class="flex flex-1 flex-col md:flex-row p-4 gap-4 overflow-auto">
+        <div class="flex flex-1 flex-col lg:flex-row p-4 gap-4 overflow-auto">
             <div class="flex-1">
                 <VideoSync :roomId="roomId" />
             </div>
-            <div class="w-full md:w-1/3">
+            <div class="w-full lg:w-1/3">
                 <Chat :roomId="roomId" />
             </div>
         </div>
