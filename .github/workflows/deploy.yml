@@ -28,11 +28,9 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        working-directory: ./ytogther2
         run: bun install
 
       - name: Build
-        working-directory: ./ytogther2
         run: bun run build
 
       - name: Setup Pages
