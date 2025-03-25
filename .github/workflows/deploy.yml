@@ -28,9 +28,11 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
+        working-directory: ./ytogther2
         run: bun install
 
       - name: Build
+        working-directory: ./ytogther2
         run: bun run build
 
       - name: Setup Pages
@@ -40,7 +42,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         id: deployment
         with:
-          path: "./dist"
+          path: "./ytogether2/dist"
 
   deploy:
     environment:
