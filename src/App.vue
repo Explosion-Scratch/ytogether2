@@ -1,6 +1,6 @@
 <template>
     <div
-        class="h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-mono flex flex-col overflow-auto"
+        class="h-screen w-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-mono flex flex-col overflow-auto"
     >
         <header class="bg-teal-600 dark:bg-teal-800 text-white p-2 shadow-md">
             <div class="px-4 mx-auto flex items-center justify-between">
@@ -9,9 +9,7 @@
             </div>
         </header>
 
-        <main class="flex-1 flex">
-            <Room />
-        </main>
+        <Room />
     </div>
 </template>
 

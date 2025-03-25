@@ -1,55 +1,58 @@
 <template>
-    <div class="relative">
-        <div
-            v-if="!currentVideoId"
-            class="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 rounded"
-        >
-            <div class="text-center p-4">
-                <div class="mb-2 text-2xl">📺</div>
-                <p>Paste a YouTube URL to start watching together</p>
-            </div>
-        </div>
-        <div
-            v-else
-            id="youtube-player"
-            class="aspect-video transition-all duration-300 rounded overflow-hidden"
-            style="
-                box-shadow:
-                    0px 0px 1px rgba(3, 7, 18, 0.02),
-                    0px 1px 4px rgba(3, 7, 18, 0.03),
-                    0px 2px 9px rgba(3, 7, 18, 0.05),
-                    0px 4px 15px rgba(3, 7, 18, 0.06),
-                    0px 6px 24px rgba(3, 7, 18, 0.08);
-            "
-        ></div>
-
-        <div class="flex flex-col mt-4 gap-3">
-            <input
-                v-model="videoIdInput"
-                @input="handleInput"
-                @paste="handlePaste"
-                @keyup.enter="handleLoadVideoRequest"
-                placeholder="Enter YouTube video ID or URL"
-                class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded transition-all duration-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:shadow-md dark:bg-gray-800 dark:text-white"
-            />
-            <button
-                @click="handleLoadVideoRequest"
-                class="w-full px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded cursor-pointer focus:outline-none transition-all duration-300 dark:bg-teal-600 dark:hover:bg-teal-700"
+    <div class="pane panes panes-v" data-panes="3,1">
+        <div class="pane flex">
+            <div
+                v-if="!currentVideoId"
+                class="flex-1 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-700 rounded"
             >
-                Watch
-            </button>
+                <div class="text-center p-4">
+                    <div class="mb-2 text-2xl">📺</div>
+                    <p>Paste a YouTube URL to start watching together</p>
+                </div>
+            </div>
+            <div
+                v-else
+                id="youtube-player"
+                class="flex-1 !h-full transition-all duration-300 rounded overflow-hidden"
+                style="
+                    box-shadow:
+                        0px 0px 1px rgba(3, 7, 18, 0.02),
+                        0px 1px 4px rgba(3, 7, 18, 0.03),
+                        0px 2px 9px rgba(3, 7, 18, 0.05),
+                        0px 4px 15px rgba(3, 7, 18, 0.06),
+                        0px 6px 24px rgba(3, 7, 18, 0.08);
+                "
+            ></div>
         </div>
+        <div class="bottom pane">
+            <div class="flex flex-col mt-4 gap-3">
+                <input
+                    v-model="videoIdInput"
+                    @input="handleInput"
+                    @paste="handlePaste"
+                    @keyup.enter="handleLoadVideoRequest"
+                    placeholder="Enter YouTube video ID or URL"
+                    class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded transition-all duration-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 hover:shadow-md dark:bg-gray-800 dark:text-white"
+                />
+                <button
+                    @click="handleLoadVideoRequest"
+                    class="w-full px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded cursor-pointer focus:outline-none transition-all duration-300 dark:bg-teal-600 dark:hover:bg-teal-700"
+                >
+                    Watch
+                </button>
+            </div>
 
-        <p v-if="errorMessage" class="mt-2 text-red-500 text-sm">
-            {{ errorMessage }}
-        </p>
+            <p v-if="errorMessage" class="mt-2 text-red-500 text-sm">
+                {{ errorMessage }}
+            </p>
 
-        <div v-if="currentVideoId" class="mt-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-                Now playing:
-                <span class="font-semibold">{{
-                    currentVideoTitle || "YouTube Video"
-                }}</span>
+            <div v-if="currentVideoId" class="mt-4">
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Now playing:
+                    <span class="font-semibold">{{
+                        currentVideoTitle || "YouTube Video"
+                    }}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -243,8 +246,6 @@ function createPlayer(videoId) {
     }
 
     player.value = new YT.Player("youtube-player", {
-        height: "360",
-        width: "640",
         videoId: videoId,
         playerVars: {
             origin: window.location.origin,

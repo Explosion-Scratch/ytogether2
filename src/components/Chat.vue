@@ -1,6 +1,6 @@
 <template>
     <div
-        class="flex flex-col h-full border border-gray-300 dark:border-gray-700 rounded overflow-auto transition-all duration-300 hover:shadow-md dark:hover:shadow-lg"
+        class="flex flex-col flex-1 border border-gray-300 dark:border-gray-700 rounded overflow-auto transition-all duration-300 hover:shadow-md dark:hover:shadow-lg"
     >
         <div
             class="grid grid-cols-2 gap-4 bg-gray-100 dark:bg-gray-800 p-3 border-b border-gray-300 dark:border-gray-700 text-sm"
