@@ -23,7 +23,7 @@
             "
         ></div>
 
-        <div class="flex flex-col mt-4">
+        <div class="flex flex-col mt-4 gap-3">
             <input
                 v-model="videoIdInput"
                 @input="handleInput"
@@ -34,7 +34,7 @@
             />
             <button
                 @click="handleLoadVideoRequest"
-                class="w-full px-4 py-2 bg-teal-500 text-white rounded-b hover:bg-teal-600 focus:outline-none transition-all duration-300"
+                class="w-full px-4 py-2 bg-teal-500 text-white rounded cursor-pointer hover:bg-teal-600 focus:outline-none transition-all duration-300"
             >
                 Watch
             </button>
@@ -158,10 +158,19 @@ function handlePeerMessage(data) {
         case "seek":
             if (!isSyncing.value) {
                 isSyncing.value = true;
+                const isPaused =
+                    player.value.getPlayerState() === YT.PlayerState.PAUSED;
                 if (Math.abs(player.value.getCurrentTime() - data.time) > 0.5) {
                     player.value.seekTo(data.time, true);
                 }
-                player.value.playVideo();
+                setTimeout(() => {
+                    if (
+                        !isPaused &&
+                        player.value.getState() !== YT.PlayerState.PLAYING
+                    ) {
+                        player.value.playVideo();
+                    }
+                });
                 lastSeekTime.value = data.time;
                 setTimeout(() => {
                     isSyncing.value = false;

@@ -1,25 +1,27 @@
 <template>
-    <div
-        v-if="isNewRoom"
-        class="mx-3 my-4 p-3 bg-teal-50 border border-teal-200 rounded-md text-teal-700 text-sm"
-    >
-        <p>
-            New room created with secure UUID! URL copied to clipboard for
-            sharing.
-        </p>
-        <button
-            @click="copyUrlToClipboard"
-            class="mt-1 text-xs px-2 py-1 bg-teal-100 hover:bg-teal-200 rounded transition-colors"
+    <div class="flex flex-col flex-1 overflow-hidden max-w-6xl mx-auto">
+        <div
+            v-if="isNewRoom"
+            class="mx-3 my-4 p-3 bg-teal-50 border border-teal-200 rounded-md text-teal-700 text-sm"
         >
-            Copy URL again
-        </button>
-    </div>
-    <div class="flex flex-1 flex-col md:flex-row p-4 gap-4">
-        <div class="flex-1">
-            <VideoSync :roomId="roomId" />
+            <p>
+                New room created with secure UUID! URL copied to clipboard for
+                sharing.
+            </p>
+            <button
+                @click="copyUrlToClipboard"
+                class="mt-1 text-xs px-2 py-1 bg-teal-100 hover:bg-teal-200 rounded transition-colors"
+            >
+                Copy URL again
+            </button>
         </div>
-        <div class="w-full md:w-1/3">
-            <Chat :roomId="roomId" />
+        <div class="flex flex-1 flex-col md:flex-row p-4 gap-4 overflow-auto">
+            <div class="flex-1">
+                <VideoSync :roomId="roomId" />
+            </div>
+            <div class="w-full md:w-1/3">
+                <Chat :roomId="roomId" />
+            </div>
         </div>
     </div>
 </template>

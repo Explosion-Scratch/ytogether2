@@ -1,5 +1,7 @@
 <template>
-    <div class="min-h-screen bg-white text-gray-800 font-mono flex flex-col">
+    <div
+        class="h-screen bg-white text-gray-800 font-mono flex flex-col overflow-hidden"
+    >
         <header class="bg-teal-600 text-white p-3 shadow-md">
             <div class="container mx-auto">
                 <h1 class="text-lg font-bold my-0">YTogether</h1>
@@ -7,7 +9,7 @@
             </div>
         </header>
 
-        <main class="flex-1 flex">
+        <main class="flex-1 flex overflow-hidden">
             <Room />
         </main>
 
