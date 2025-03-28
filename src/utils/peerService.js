@@ -31,7 +31,7 @@ class PeerConnectionManager {
     this._options = {
       host: "peerjs-vercel-gamma.vercel.app",
       port: 443,
-      path: "/peerjs",
+      path: "/",
       secure: true,
       config: {
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
